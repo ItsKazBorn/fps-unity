@@ -72,6 +72,7 @@ public class Gun : MonoBehaviour
         if (!Input.GetButton("Fire1"))
         {
             currentSpread = 0f;
+            animator.SetBool("Firing", false);
         }
 
         
@@ -79,7 +80,7 @@ public class Gun : MonoBehaviour
 
     void Shoot()
     {
-        
+        animator.SetBool("Firing", true);
         currentAmmo--; // Use 1 ammo
         audioSource.PlayOneShot(gunshotSound); // Play Gunshot Sound
         ammoText.text = currentAmmo + " / " + storedAmmo; //  Update ammo text

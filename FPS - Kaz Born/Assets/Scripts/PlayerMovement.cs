@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controller;
     public Transform groundCheck;
+    public Animator weaponAnimator;
 
     public float baseSpeed = 12f;
     private float speed;
@@ -61,5 +62,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveDir = transform.right * xInput + transform.forward * zInput;
 
         controller.Move(moveDir * speed * Time.deltaTime);
+        weaponAnimator.SetFloat("Magnitude", moveDir.magnitude);
     }
 }
