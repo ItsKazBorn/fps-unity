@@ -10,7 +10,7 @@ public class Grenade : MonoBehaviour
     public float force = 700f;
     private float countdown;
     private bool hasExploded = false;
-    
+
     [Header("Effects")]
     public GameObject explosionEffect;
     public GameObject granadeExplosionPrefab;
