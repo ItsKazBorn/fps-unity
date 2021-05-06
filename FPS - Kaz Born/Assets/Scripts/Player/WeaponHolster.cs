@@ -9,6 +9,7 @@ public enum GunType
     Handgun,
     Sniper,
     Shotgun,
+    SubMachine,
     Grenade
 }
 
@@ -93,6 +94,9 @@ public class WeaponHolster : MonoBehaviour
                     break;
                 case GunType.Sniper:
                     ammoHolster.Initialize(GunType.Sniper, 30, 5);
+                    break;
+                case GunType.SubMachine:
+                    ammoHolster.Initialize(GunType.SubMachine, 120, 30);
                     break;
                 case GunType.Grenade:
                     ammoHolster.Initialize(GunType.Grenade, 3, 1);

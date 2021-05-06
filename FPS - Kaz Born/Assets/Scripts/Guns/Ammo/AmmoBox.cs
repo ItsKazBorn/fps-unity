@@ -22,7 +22,7 @@ public class AmmoBox : MonoBehaviour
 
     private void Update()
     {
-        transform.Rotate(0, 10 * Time.deltaTime, 0);
+        transform.Rotate(0, 45 * Time.deltaTime, 0);
     }
 
     public void Deactivate()
