@@ -32,7 +32,7 @@ public class Grenade : MonoBehaviour
     {
         hasExploded = true;
         
-        // Particle effect
+        // Effects
         GameObject explosion = Instantiate(explosionEffect, transform.position, transform.rotation);
         Destroy(explosion, 2f);
         GameObject explosionSound = Instantiate(granadeExplosionPrefab, transform.position, transform.rotation);

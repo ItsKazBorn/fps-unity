@@ -1,60 +1,66 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class WeaponSwitching : MonoBehaviour
 {
+    private List<Weapon> weapons = new List<Weapon>();
+    
     public int selectedWeapon = 0;
     
     void Start()
     {
-        SelectWeapon();
+        foreach (Transform obj in transform)
+        {
+            Weapon weapon = obj.GetComponent<Weapon>();
+            if (weapon != null)
+            {
+                weapons.Add(weapon);
+                weapon.gameObject.SetActive(false);
+            }
+        }
+        SelectWeapon(0);
     }
 
     void Update()
     {
-        int previousSelectedWeapon = selectedWeapon;
-        
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        ChangeSelectedWeapon(Input.GetAxis("Mouse ScrollWheel"));
+    }
+
+    public void ChangeSelectedWeapon(float axis)
+    {
+        int previousWeapon = selectedWeapon;
+        if (axis > 0f)
         {
-            if (selectedWeapon >= transform.childCount - 1)
+            if (selectedWeapon >= weapons.Count - 1)
                 selectedWeapon = 0;
-            else 
+            else
                 selectedWeapon++;
         }
-        if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+        else if (axis < 0f)
         {
             if (selectedWeapon <= 0)
-                selectedWeapon = transform.childCount - 1;
-            else 
+                selectedWeapon = weapons.Count - 1;
+            else
                 selectedWeapon--;
         }
 
-        if (previousSelectedWeapon != selectedWeapon)
-        {
-            SelectWeapon();
-        }
+        if (previousWeapon != selectedWeapon)
+            SelectWeapon(previousWeapon);
+    }
+    
+    void SelectWeapon(int previousWeapon)
+    {
+        weapons[previousWeapon].gameObject.SetActive(false);
+        weapons[selectedWeapon].gameObject.SetActive(true);
     }
 
-    void SelectWeapon()
+    public Weapon GetSelectedWeapon()
     {
         int i = 0;
         foreach (Transform weapon in transform)
         {
             if (i == selectedWeapon)
-                weapon.gameObject.SetActive(true);
-            else
-                weapon.gameObject.SetActive(false);
-            i++;
-            
-        }
-    }
-
-    public Gun GetSelectedWeapon()
-    {
-        int i = 0;
-        foreach (Transform weapon in transform)
-        {
-            if (i == selectedWeapon)
-                return weapon.GetComponent<Gun>();
+                return weapon.GetComponent<Weapon>();
             i++;
         }
         return null;

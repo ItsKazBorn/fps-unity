@@ -1,35 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class Gun : MonoBehaviour
+public class Gun : Weapon
 {
     [Header("Components")]
-    public Animator animator;
     public Camera fpsCam;
-    public AudioSource audioSource;
     
     [Header("Shoot")]
     public float damage = 10f;
     private float gunRange = 100f;
     private float impactForce = 300f;
     public float fireRate = 15;
-    private float nextTimeToFire = 0f;
+    public float nextTimeToFire = 0f;
     public float maxSpread = 0.1f;
-    private float currentSpread = 0f;
+    protected float currentSpread = 0f;
     public bool isScoped = false;
-    
-    [Header("Reload")]
-    public int magSize = 30;
-    private int storedAmmo;
-    private int currentAmmo;
-    public float reloadTime = 1f;
-    private bool isReloading = false;
-    public TextMeshProUGUI ammoText;
 
     [Header("Visual Effects")]
     public GameObject muzzleFalsh;
@@ -37,85 +26,42 @@ public class Gun : MonoBehaviour
     public GameObject impactEffect;
     public GameObject bulletHole;
 
-    [Header("Sound Effects")] 
-    public AudioClip gunshotSound;
-    public AudioClip reloadSound;
-    public AudioClip takeMagSound;
-    
-    private void Start()
+    protected override void OnEnable()
     {
-        currentAmmo = magSize;
-        storedAmmo = magSize;
-        ammoText.text = currentAmmo + " / " + storedAmmo;
-    }
-
-    protected virtual void OnEnable()
-    {
+        base.OnEnable();
         isScoped = false;
-        isReloading = false;
-        animator.SetBool("Reloading", false);
-        ammoText.text = currentAmmo + " / " + storedAmmo;
     }
 
     void Update()
     {
         Scope();
-        
-        // Start Reloading
-        if (!isReloading && Input.GetKeyDown(KeyCode.R))
-            StartCoroutine(Reload());
-
-        // Start Shooting
-        if (!isReloading && currentAmmo > 0 && Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
-        {
-            nextTimeToFire = Time.time + 1f / fireRate;
-            Shoot();
-        }
-
-        // Stop spread
-        if (!Input.GetButton("Fire1"))
-        {
-            currentSpread = 0f;
-            animator.SetBool("Firing", false);
-        }
     }
 
-    void Shoot()
+    public override void Fire()
     {
-        // Set Stuff
-        animator.SetBool("Firing", true); // Animate
-        currentAmmo--; // Use 1 ammo
-        audioSource.PlayOneShot(gunshotSound); // Play Gunshot Sound
-        ammoText.text = currentAmmo + " / " + storedAmmo; //  Update ammo text
+        base.Fire();
+        nextTimeToFire = Time.time + 1f / fireRate;
         
         // Spawn muzzleflash
         GameObject muzzleFalshGO = Instantiate(muzzleFalsh, muzzleLocation);
         Destroy(muzzleFalshGO, 1f);
 
-        // Check if hit a target
-        RaycastHit hit;
-
-        // Spread
-        Vector3 shootDirection = CalculateSpread();
-
-        // Hit Calculations
-        if (Physics.Raycast(fpsCam.transform.position, shootDirection, out hit, gunRange))
-        {
-            Shootable target = hit.transform.GetComponent<Shootable>();
-            if (target != null)
-                target.TakeDamage(damage);
-
-            if (hit.rigidbody != null)
-                hit.rigidbody.AddForce(-hit.normal * impactForce);
-
-            // Spawn impact effect
-            GameObject impactGO = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
-            Destroy(impactGO, 1f);
-            Instantiate(bulletHole, hit.point, Quaternion.LookRotation((hit.normal)));
-        }
+        CalculateBullet();
     }
 
-    Vector3 CalculateSpread()
+    public override void StopFiring()
+    {
+        base.StopFiring();
+        currentSpread = 0f;
+    }
+
+    protected virtual void CalculateBullet()
+    {
+        Vector3 shootDirection = CalculateSpread();
+        HitCalculation(shootDirection);
+    }
+
+    protected virtual Vector3 CalculateSpread()
     {
         // Get Shoot Direction
         Vector3 shootDirection = fpsCam.transform.forward;
@@ -136,37 +82,28 @@ public class Gun : MonoBehaviour
         return shootDirection;
     }
 
-    IEnumerator Reload()
+    protected void HitCalculation(Vector3 shootDirection)
     {
-        int ammountToReload = magSize - currentAmmo;
-        int reloadAmmount = 0;
-        if (storedAmmo >= ammountToReload)
-            reloadAmmount = ammountToReload;
-        else
-            reloadAmmount = storedAmmo - currentAmmo;
-
-        if (reloadAmmount > 0)
+        RaycastHit hit;
+        if (Physics.Raycast(fpsCam.transform.position, shootDirection, out hit, gunRange))
         {
-            audioSource.PlayOneShot(reloadSound);
-            isReloading = true;
-            animator.SetBool("Reloading", true);
+            DoDamage(hit);
 
-            yield return new WaitForSeconds(reloadTime - .25f);
-            currentAmmo += reloadAmmount;
-            storedAmmo -= reloadAmmount;
-            ammoText.text = currentAmmo + " / " + storedAmmo;
-            animator.SetBool("Reloading", false);
-        
-            yield return new WaitForSeconds(.25f);
-            isReloading = false;
+            if (hit.rigidbody != null)
+                hit.rigidbody.AddForce(-hit.normal * impactForce);
+            
+            // Spawn impact effect
+            GameObject impactGO = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
+            Destroy(impactGO, 1f);
+            Instantiate(bulletHole, hit.point, Quaternion.LookRotation((hit.normal)));
         }
     }
 
-    public void AddStoredAmmo()
+    protected virtual void DoDamage(RaycastHit hit)
     {
-        audioSource.PlayOneShot(takeMagSound);
-        storedAmmo += magSize;
-        ammoText.text = currentAmmo + " / " + storedAmmo;
+        Shootable target = hit.transform.GetComponent<Shootable>();
+        if (target != null)
+            target.TakeDamage(damage);
     }
 
     protected virtual void Scope()
@@ -182,5 +119,19 @@ public class Gun : MonoBehaviour
             isScoped = false;
             animator.SetBool("Scoped", isScoped);
         }
+    }
+
+    public override bool CanFire()
+    {
+        if (Time.time >= nextTimeToFire && !isReloading)
+            return true;
+        return false;
+    }
+
+    public override bool CanReload()
+    {
+        if (!isFiring && !isReloading && !isScoped)
+            return true;
+        return false;
     }
 }

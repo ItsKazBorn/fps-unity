@@ -19,7 +19,7 @@ public class PlayerCollision : MonoBehaviour
         if (other.gameObject.CompareTag("AmmoBox"))
         {
             weaponSwitching.GetSelectedWeapon().AddStoredAmmo();
-            granadeStorage.AddAmmo();
+            granadeStorage.AddStoredAmmo();
             Destroy(other.gameObject);
         }
     }
