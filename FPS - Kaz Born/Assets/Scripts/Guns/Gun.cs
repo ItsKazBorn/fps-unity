@@ -28,11 +28,13 @@ public class Gun : Weapon
     {
         base.OnEnable();
         isScoped = false;
+        animator.SetBool("Scoped", false);
     }
 
-    void Update()
+    protected virtual void OnDisable()
     {
-        Scope();
+        isScoped = false;
+        animator.SetBool("Scoped", false);
     }
 
     public override void Fire()
@@ -98,21 +100,6 @@ public class Gun : Weapon
         Shootable target = hit.transform.GetComponent<Shootable>();
         if (target != null)
             target.TakeDamage(damage);
-    }
-
-    protected virtual void Scope()
-    {
-        if (Input.GetButtonDown("Fire2"))
-        {
-            isScoped = true;
-            animator.SetBool("Scoped", isScoped);
-        }
-
-        if (Input.GetButtonUp("Fire2"))
-        {
-            isScoped = false;
-            animator.SetBool("Scoped", isScoped);
-        }
     }
 
     public override bool CanFire()

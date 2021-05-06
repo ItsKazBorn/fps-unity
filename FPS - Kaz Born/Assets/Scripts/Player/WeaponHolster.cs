@@ -142,7 +142,7 @@ public class WeaponHolster : MonoBehaviour
         UpdateAmmoText();
     }
 
-    Weapon GetSelectedWeapon()
+    public Weapon GetSelectedWeapon()
     {
         return weapons[selectedWeapon];
     }

@@ -81,6 +81,24 @@ public class PlayerController : MonoBehaviour
 
     void ScopeGun()
     {
-        
+        if (Input.GetButtonDown("Fire2"))
+        {
+            Gun gun = weaponHolster.GetSelectedWeapon().GetComponent<Gun>();
+            if (gun != null)
+            {
+                gun.isScoped = true;
+                gun.animator.SetBool("Scoped", true);
+            }
+        }
+
+        if (Input.GetButtonUp("Fire2"))
+        {
+            Gun gun = weaponHolster.GetSelectedWeapon().GetComponent<Gun>();
+            if (gun != null)
+            {
+                gun.isScoped = false;
+                gun.animator.SetBool("Scoped", false);
+            }
+        }
     }
 }

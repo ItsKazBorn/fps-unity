@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class Sniper : Gun
@@ -8,10 +9,13 @@ public class Sniper : Gun
     public float scopedFOV = 15f;
     private float normalFOV = 60f;
 
-    protected override void Scope()
+    private void FixedUpdate()
     {
-        base.Scope();
+        Scope();
+    }
 
+    private void Scope()
+    {
         if (isScoped)
             StartCoroutine(OnScoped());
         else
@@ -21,6 +25,12 @@ public class Sniper : Gun
     protected override void OnEnable()
     {
         base.OnEnable();
+        OnUnscoped();
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
         OnUnscoped();
     }
 
