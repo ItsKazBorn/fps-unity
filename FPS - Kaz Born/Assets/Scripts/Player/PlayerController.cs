@@ -7,29 +7,26 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public WeaponHolster weaponHolster;
-    
+    private PlayerMovement playerMovement;
 
     private bool canShoot = true;
     
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxis("Mouse ScrollWheel") != 0f)
-            weaponHolster.ChangeSelectedWeapon(Input.GetAxis("Mouse ScrollWheel"));
-        
-        if (Input.GetKeyDown(KeyCode.R))
-            weaponHolster.ReloadSelectedWeapon();
+        Jump();
+        Move();
 
-        if (Input.GetButton("Fire1") && canShoot)
-            weaponHolster.FireSelectedWeapon();
-        else
-            weaponHolster.StopFiringSelectedWeapon();
+        SwitchWeapons();
+        ReloadWeapon();
+        FireWeapon();
+        ScopeGun();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -43,5 +40,47 @@ public class PlayerController : MonoBehaviour
             weaponHolster.AddStoredAmmoTo(ammoBox.gunType);
             ammoBox.Deactivate();
         }
+    }
+
+    void Move()
+    {
+        playerMovement.Move(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+    }
+
+    void Jump()
+    {
+        if (Input.GetButtonDown("Jump"))
+            playerMovement.Jump();
+    }
+
+    void Sprint()
+    {
+        playerMovement.Sprint(Input.GetKey(KeyCode.LeftShift));
+    }
+    
+
+    void SwitchWeapons()
+    {
+        if (Input.GetAxis("Mouse ScrollWheel") != 0f)
+            weaponHolster.ChangeSelectedWeapon(Input.GetAxis("Mouse ScrollWheel"));
+    }
+
+    void ReloadWeapon()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+            weaponHolster.ReloadSelectedWeapon();
+    }
+
+    void FireWeapon()
+    {
+        if (Input.GetButton("Fire1") && canShoot)
+            weaponHolster.FireSelectedWeapon();
+        else
+            weaponHolster.StopFiringSelectedWeapon();
+    }
+
+    void ScopeGun()
+    {
+        
     }
 }

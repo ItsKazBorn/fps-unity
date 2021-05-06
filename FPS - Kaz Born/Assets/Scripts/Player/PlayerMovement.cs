@@ -23,38 +23,40 @@ public class PlayerMovement : MonoBehaviour
     
     void Update()
     {
-        Jump();
-        Move();
+        Gravity();
     }
 
-    void Jump()
+    public void Jump()
+    {
+        if (isGrounded)
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+    }
+
+    void Gravity()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         if (isGrounded && velocity.y < 0)
             velocity.y = -2f; 
-
-        if (Input.GetButtonDown("Jump") && isGrounded)
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
+        
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
     }
 
-    void Move()
+    public void Move(float xInput, float zInput)
     {
-        if (Input.GetKey(KeyCode.LeftShift))
-            speed = baseSpeed * 2f;
-        else
-            speed = baseSpeed;
-
-        float xInput = Input.GetAxis("Horizontal");
-        float zInput = Input.GetAxis("Vertical");
-
         Vector3 moveDir = transform.right * xInput + transform.forward * zInput;
 
         controller.Move(moveDir * speed * Time.deltaTime);
         weaponAnimator.SetFloat("Magnitude", moveDir.magnitude);
+    }
+
+    public void Sprint(bool isSprinting)
+    {
+        if (isSprinting)
+            speed = baseSpeed * 2f;
+        else
+            speed = baseSpeed;
     }
 }
