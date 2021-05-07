@@ -8,10 +8,6 @@ public class PlayerController : MonoBehaviour
 {
     public WeaponHolster weaponHolster;
     private PlayerMovement playerMovement;
-
-    private bool canShoot = true;
-
-    private float health = 100f;
     
     // Start is called before the first frame update
     void Start()
@@ -96,7 +92,7 @@ public class PlayerController : MonoBehaviour
 
     void FireWeapon()
     {
-        if (Input.GetButton("Fire1") && canShoot)
+        if (Input.GetButton("Fire1"))
             weaponHolster.FireSelectedWeapon();
         else
             weaponHolster.StopFiringSelectedWeapon();

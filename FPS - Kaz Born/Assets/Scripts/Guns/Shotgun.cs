@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Shotgun : Gun
 {
-    public int ammountOfPellets = 10;
+    [SerializeField] private int ammountOfPellets = 10;
 
     protected override void CalculateBullet()
     {

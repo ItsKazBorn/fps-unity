@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundMask;
     private Vector3 velocity;
     private bool isGrounded = false;
+
+    [SerializeField] private Transform _transform;
     
     void Update()
     {
@@ -46,9 +48,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void Move(float xInput, float zInput)
     {
-        Vector3 moveDir = transform.right * xInput + transform.forward * zInput;
+        Vector3 moveDir = _transform.right * xInput + _transform.forward * zInput;
 
-        controller.Move(moveDir * speed * Time.deltaTime);
+        controller.Move( speed * Time.deltaTime * moveDir);
         weaponAnimator.SetFloat("Magnitude", moveDir.magnitude);
     }
 

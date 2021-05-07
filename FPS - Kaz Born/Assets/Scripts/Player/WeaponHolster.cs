@@ -15,12 +15,11 @@ public enum GunType
 
 public class WeaponHolster : MonoBehaviour
 {
-    private List<Weapon> weapons = new List<Weapon>();
+    private List<Weapon> _weapons = new List<Weapon>();
 
-    private List<AmmoHolster> ammoHolsters = new List<AmmoHolster>();
+    private List<AmmoHolster> _ammoHolsters = new List<AmmoHolster>();
     
-    public int selectedWeapon = 0;
-    public AmmoText ammoText;
+    private int selectedWeapon = 0;
     
     void Start()
     {
@@ -29,12 +28,13 @@ public class WeaponHolster : MonoBehaviour
             Weapon weapon = obj.GetComponent<Weapon>();
             if (weapon != null)
             {
-                weapons.Add(weapon);
+                _weapons.Add(weapon);
+                weapon.gameObject.SetActive(false);
             }
         }
         
         InitAmmo();
-        SelectWeapon(selectedWeapon);
+        SelectWeapon(1);
     }
 
     public void FireSelectedWeapon()
@@ -73,36 +73,31 @@ public class WeaponHolster : MonoBehaviour
             }
         }
     }
+
+    private static readonly Dictionary<GunType, (int, int)> registry =  new Dictionary<GunType, (int, int)>()
+    {
+        {GunType.Rifle, (90, 30)},
+        {GunType.Handgun, (30, 10)},
+        {GunType.Shotgun, (40, 5)},
+        {GunType.Sniper, (30, 5)},
+        {GunType.SubMachine, (120, 30)},
+        {GunType.Grenade, (3, 1)}
+    };
     
     void InitAmmo()
     {
-        for (int i = 0; i < weapons.Count; i++)
+        for (int i = 0; i < _weapons.Count; i++)
         {
-            Weapon gun = weapons[i];
+            Weapon gun = _weapons[i];
             AmmoHolster ammoHolster = new AmmoHolster();
-            switch (gun.gunType)
-            {
-                case GunType.Rifle:
-                    ammoHolster.Initialize(GunType.Rifle, 90, 30);
-                    break;
-                case GunType.Handgun:
-                    ammoHolster.Initialize(GunType.Handgun, 30, 10);
-                    break;
-                case GunType.Shotgun:
-                    ammoHolster.Initialize(GunType.Shotgun, 40, 5);
-                    ammoHolster.SetReloadAmmount(1);
-                    break;
-                case GunType.Sniper:
-                    ammoHolster.Initialize(GunType.Sniper, 30, 5);
-                    break;
-                case GunType.SubMachine:
-                    ammoHolster.Initialize(GunType.SubMachine, 120, 30);
-                    break;
-                case GunType.Grenade:
-                    ammoHolster.Initialize(GunType.Grenade, 3, 1);
-                    break;
-            }
-            ammoHolsters.Add(ammoHolster);
+
+            var tuple = registry[gun.gunType];
+            ammoHolster.Initialize(gun.gunType, tuple.Item1, tuple.Item2);
+            
+            if (gun.gunType == GunType.Shotgun)
+                ammoHolster.SetReloadAmmount(1);
+            
+            _ammoHolsters.Add(ammoHolster);
         }
     }
 
@@ -117,7 +112,7 @@ public class WeaponHolster : MonoBehaviour
         int previousWeapon = selectedWeapon;
         if (axis > 0f)
         {
-            if (selectedWeapon >= weapons.Count - 1)
+            if (selectedWeapon >= _weapons.Count - 1)
                 selectedWeapon = 0;
             else
                 selectedWeapon++;
@@ -125,7 +120,7 @@ public class WeaponHolster : MonoBehaviour
         else if (axis < 0f)
         {
             if (selectedWeapon <= 0)
-                selectedWeapon = weapons.Count - 1;
+                selectedWeapon = _weapons.Count - 1;
             else
                 selectedWeapon--;
         }
@@ -136,19 +131,19 @@ public class WeaponHolster : MonoBehaviour
     
     void SelectWeapon(int previousWeapon)
     {
-        weapons[previousWeapon].gameObject.SetActive(false);
-        weapons[selectedWeapon].gameObject.SetActive(true);
+        _weapons[previousWeapon].gameObject.SetActive(false);
+        _weapons[selectedWeapon].gameObject.SetActive(true);
         UpdateAmmoText();
     }
 
     public Weapon GetSelectedWeapon()
     {
-        return weapons[selectedWeapon];
+        return _weapons[selectedWeapon];
     }
     
     AmmoHolster GetSelectedAmmoHolster()
     {
-        foreach (AmmoHolster ammo in ammoHolsters)
+        foreach (AmmoHolster ammo in _ammoHolsters)
         {
             if (ammo.gunType == GetSelectedWeapon().gunType)
                 return ammo;
@@ -158,7 +153,7 @@ public class WeaponHolster : MonoBehaviour
     
     Weapon GetWeaponOfType(GunType gunType)
     {
-        foreach (Weapon weapon in weapons)
+        foreach (Weapon weapon in _weapons)
         {
             if (weapon.gunType == gunType)
                 return weapon;
@@ -168,7 +163,7 @@ public class WeaponHolster : MonoBehaviour
 
     AmmoHolster GetAmmoHolsterOfType(GunType gunType)
     {
-        foreach (AmmoHolster ammoHolster in ammoHolsters)
+        foreach (AmmoHolster ammoHolster in _ammoHolsters)
         {
             if (ammoHolster.gunType == gunType)
             {
