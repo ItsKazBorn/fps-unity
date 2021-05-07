@@ -20,7 +20,7 @@ public class WeaponHolster : MonoBehaviour
     private List<AmmoHolster> ammoHolsters = new List<AmmoHolster>();
     
     public int selectedWeapon = 0;
-    public TextMeshProUGUI ammoText;
+    public AmmoText ammoText;
     
     void Start()
     {
@@ -108,7 +108,6 @@ public class WeaponHolster : MonoBehaviour
 
     public void AddStoredAmmoTo(GunType gunType)
     {
-        Debug.Log("Adding Stored Ammo to " + gunType);
         GetAmmoHolsterOfType(gunType).AddStoredAmmo();
         UpdateAmmoText();
     }
@@ -173,16 +172,15 @@ public class WeaponHolster : MonoBehaviour
         {
             if (ammoHolster.gunType == gunType)
             {
-                Debug.Log("Got Holster of Type " + gunType);
                 return ammoHolster;
             }
         }
-        Debug.Log("Returning Null");
         return null;
     }
 
     void UpdateAmmoText()
     {
-        ammoText.text = GetSelectedAmmoHolster().currentAmmoInMag + " / " + GetSelectedAmmoHolster().storedAmmo;
+        var holster = GetSelectedAmmoHolster();
+        GameEvents.current.AmmoChanged(holster.currentAmmoInMag, holster.storedAmmo);
     }
 }

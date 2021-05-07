@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     private PlayerMovement playerMovement;
 
     private bool canShoot = true;
+
+    private float health = 100f;
     
     // Start is called before the first frame update
     void Start()
@@ -24,11 +26,20 @@ public class PlayerController : MonoBehaviour
         Jump();
         Move();
         
-
         SwitchWeapons();
         ReloadWeapon();
         FireWeapon();
         ScopeGun();
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            OnQPress();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Q))
+        {
+            OnQRelease();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -42,6 +53,16 @@ public class PlayerController : MonoBehaviour
             weaponHolster.AddStoredAmmoTo(ammoBox.gunType);
             ammoBox.Deactivate();
         }
+    }
+
+    private void OnQPress()
+    {
+        GameEvents.current.QPressed();
+    }
+
+    private void OnQRelease()
+    {
+        GameEvents.current.QReleased();
     }
 
     void Move()
