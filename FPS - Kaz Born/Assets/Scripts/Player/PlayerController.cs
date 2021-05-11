@@ -6,13 +6,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private PlayerMovement playerMovement;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        playerMovement = GetComponent<PlayerMovement>();
-    }
 
     // Update is called once per frame
     void Update()
@@ -35,24 +28,29 @@ public class PlayerController : MonoBehaviour
         {
             // Put in Events
             AmmoBox ammoBox = other.gameObject.GetComponent<AmmoBox>();
-            InputEvents.current.AmmoPickUp(ammoBox.gunType);
+            InputEvents.current.AmmoPickUp(ammoBox.GunType);
         }
     }
 
     void Move()
     {
-        playerMovement.Move(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+            InputEvents.current.WASDPressed(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
     }
 
     void Jump()
     {
         if (Input.GetButtonDown("Jump"))
-            playerMovement.Jump();
+            InputEvents.current.JumpPressed();
     }
 
     void Sprint()
     {
-        playerMovement.Sprint(Input.GetKey(KeyCode.LeftShift));
+        if (Input.GetButtonDown("Sprint"))
+            InputEvents.current.SprintPressed();
+        
+        if (Input.GetButtonUp("Sprint"))
+            InputEvents.current.SprintReleased();
     }
     
     

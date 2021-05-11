@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Shootable : MonoBehaviour
 {
-    public float health = 10f;
+    [SerializeField] private float health = 10f;
     protected bool hasDied = false;
     
     public void TakeDamage(float damageTaken)

@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class ThrowGranade : Weapon
 {
-    public float throwForce = 40f;
-    public GameObject grenadePrefab;
+    [SerializeField] private float throwForce = 40f;
+    [SerializeField] private GameObject grenadePrefab;
     private Transform _transform;
 
     private void Start()

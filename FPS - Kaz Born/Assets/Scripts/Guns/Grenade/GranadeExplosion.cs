@@ -5,7 +5,7 @@ using UnityEngine;
 public class GranadeExplosion : MonoBehaviour
 {
     private AudioSource audioSource;
-    public AudioClip explosionSound;
+    [SerializeField] private AudioClip explosionSound;
     
     // Start is called before the first frame update
     void Start()

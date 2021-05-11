@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Crackable : Shootable
 {
-    public GameObject crackedVersion;
+    [SerializeField] private GameObject crackedVersion;
     
     protected override void Die()
     {

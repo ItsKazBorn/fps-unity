@@ -5,15 +5,15 @@ using UnityEngine;
 public class Grenade : MonoBehaviour
 {
     [Header("General")]
-    public float delay = 3f;
-    public float radius = 5f;
-    public float force = 700f;
+    [SerializeField] private float delay = 3f;
+    [SerializeField] private float radius = 5f;
+    [SerializeField] private float force = 700f;
     private float countdown;
     private bool hasExploded = false;
 
     [Header("Effects")]
-    public GameObject explosionEffect;
-    public GameObject granadeExplosionPrefab;
+    [SerializeField] private GameObject explosionEffect;
+    [SerializeField] private GameObject granadeExplosionPrefab;
     
     void Start()
     {

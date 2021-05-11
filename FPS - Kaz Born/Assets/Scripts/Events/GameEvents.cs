@@ -39,4 +39,13 @@ public class GameEvents : MonoBehaviour
             onAmmoChanged(inMag, stored);
         }
     }
+
+    public event Action<float> onSpreadChanged;
+    public void SpreadChanged(float spread)
+    {
+        if (onSpreadChanged != null)
+        {
+            onSpreadChanged(spread);
+        }
+    }
 }

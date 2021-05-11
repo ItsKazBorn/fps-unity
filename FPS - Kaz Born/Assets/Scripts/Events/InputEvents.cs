@@ -11,7 +11,46 @@ public class InputEvents : MonoBehaviour
     {
         current = this;
     }
+    
+    // >>>--------> MOVEMENT
+    public event Action<float, float> onWASDPressed;
+    public void WASDPressed(float xInput, float zInput)
+    {
+        if (onWASDPressed != null)
+        {
+            onWASDPressed(xInput, zInput);
+        }
+    }
 
+    public event Action onJumpPressed;
+    public void JumpPressed()
+    {
+        if (onJumpPressed != null)
+        {
+            onJumpPressed();
+        }
+    }
+
+    public event Action onSprintPressed;
+    public void SprintPressed()
+    {
+        if (onSprintPressed != null)
+        {
+            onSprintPressed();
+        }
+    }
+
+    public event Action onSprintReleased;
+    public void SprintReleased()
+    {
+        if (onSprintReleased != null)
+        {
+            onSprintReleased();
+        }
+    }
+    
+    
+    
     
     // >>>--------> WEAPONS
     public event Action onFirePressed;

@@ -75,6 +75,7 @@ public class WeaponHolster : MonoBehaviour
         
         if (holster.CurrentAmmoInMag > 0 && weapon.CanFire())
         {
+            
             // Can Shoot
             weapon.Fire();
             holster.UseAmmo();

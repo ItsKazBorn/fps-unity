@@ -11,6 +11,7 @@ public class Weapon : MonoBehaviour
 
     protected bool isReloading = false;
     protected float reloadTime = 1f;
+    [SerializeField] protected bool autoFire = true;
 
     [Header("Animation")]
     [SerializeField] protected Animator animator;
@@ -35,7 +36,15 @@ public class Weapon : MonoBehaviour
     public virtual bool CanFire()
     {
         if (!isReloading)
+        {
+            if (!autoFire)
+            {
+                if (!isFiring)
+                    return true;
+                return false;
+            }
             return true;
+        }
         return false;
     }
 
@@ -51,6 +60,14 @@ public class Weapon : MonoBehaviour
         animator.SetBool("Firing", true);
         isFiring = true;
         _audioSource.PlayOneShot(_fireSound);
+        if (!autoFire)
+            StartCoroutine(StopFiringAnimation());
+    }
+
+    IEnumerator StopFiringAnimation()
+    {
+        yield return new WaitForSeconds(0.1f);
+        animator.SetBool("Firing", false);
     }
 
     public virtual void StopFiring()

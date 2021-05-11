@@ -55,6 +55,7 @@ public class Gun : Weapon
     {
         base.StopFiring();
         currentSpread = 0f;
+        GameEvents.current.SpreadChanged(currentSpread);
     }
 
     protected virtual void CalculateBullet()
@@ -80,6 +81,7 @@ public class Gun : Weapon
         // Make spread larger for next firing
         currentSpread += 0.01f;
         currentSpread = Mathf.Clamp(currentSpread, 0f, maxSpread);
+        GameEvents.current.SpreadChanged(currentSpread);
 
         return shootDirection;
     }
@@ -111,7 +113,28 @@ public class Gun : Weapon
     public override bool CanFire()
     {
         if (Time.time >= _nextTimeToFire && !isReloading)
-            return true;
+        {
+            if (!autoFire)
+            {
+                Debug.Log("Isn't AutoFire");
+                if (!isFiring)
+                {
+                    Debug.Log("Can Fire");
+                    return true;
+                }
+                else
+                {
+                    Debug.Log("Cannot Fire");
+                    return false;
+                }
+            }
+            else
+            {
+                Debug.Log("Is AutoFire");
+                Debug.Log("Can Fire");
+                return true;
+            }
+        }
         return false;
     }
 

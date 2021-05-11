@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class AmmoBox : MonoBehaviour
 {
-    public GunType gunType;
-    public float respawnTime = 5f;
+    [SerializeField] private GunType gunType;
+    public GunType GunType => gunType;
+
+    [SerializeField] private float respawnTime = 5f;
 
     private BoxCollider _boxCollider;
     private List<Transform> _children = new List<Transform>();

@@ -1,12 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ResetTargets : MonoBehaviour
 {
-    public Camera cam;
-    public Animator animator;
-    public int distance = 3;
+    [SerializeField] private Camera cam;
+    [SerializeField] private Animator animator;
+    [SerializeField] private int distance = 3;
+    private Target[] _targets;
+
+    private void Start()
+    {
+        _targets = FindObjectsOfType<Target>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -24,12 +31,10 @@ public class ResetTargets : MonoBehaviour
                 if (interactable != null)
                 {
                     animator.SetTrigger("Pressed");
-                    
-                    Target[] targets = FindObjectsOfType<Target>();
 
-                    for (int i = 0; i < targets.Length; i++)
+                    for (int i = 0; i < _targets.Length; i++)
                     {
-                        targets[i].Reset();
+                        _targets[i].Reset();
                     }
                 }
             }
