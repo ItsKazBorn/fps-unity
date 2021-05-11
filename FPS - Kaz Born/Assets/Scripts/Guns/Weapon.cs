@@ -7,20 +7,24 @@ using UnityEngine.Serialization;
 
 public class Weapon : MonoBehaviour
 {
-    public GunType gunType;
-    
-    protected bool isFiring = false;
+    [SerializeField] private GunType gunType;
+
     protected bool isReloading = false;
     protected float reloadTime = 1f;
 
     [Header("Animation")]
-    public Animator animator;
+    [SerializeField] protected Animator animator;
 
     [Header("Audio")] 
-    public AudioSource audioSource;
-    public AudioClip reloadSound;
-    public AudioClip takeAmmoSound;
-    public AudioClip fireSound;
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _reloadSound;
+    [SerializeField] private AudioClip _takeAmmoSound;
+    [SerializeField] private AudioClip _fireSound;
+    
+    protected bool isFiring = false;
+
+    public GunType GunType => gunType;
+    public Animator Animator => animator;
 
     protected virtual void OnEnable()
     {
@@ -46,7 +50,7 @@ public class Weapon : MonoBehaviour
     {
         animator.SetBool("Firing", true);
         isFiring = true;
-        audioSource.PlayOneShot(fireSound);
+        _audioSource.PlayOneShot(_fireSound);
     }
 
     public virtual void StopFiring()
@@ -62,7 +66,7 @@ public class Weapon : MonoBehaviour
 
     protected IEnumerator ReloadCoroutine()
     {
-        audioSource.PlayOneShot(reloadSound);
+        _audioSource.PlayOneShot(_reloadSound);
         isReloading = true;
         animator.SetBool("Reloading", true);
 
@@ -73,8 +77,8 @@ public class Weapon : MonoBehaviour
         isReloading = false;
     }
 
-    public virtual void AddStoredAmmo()
+    public void AddStoredAmmo()
     {
-        audioSource.PlayOneShot(takeAmmoSound);
+        _audioSource.PlayOneShot(_takeAmmoSound);
     }
 }

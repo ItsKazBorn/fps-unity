@@ -32,7 +32,6 @@ public class GameEvents : MonoBehaviour
 
 
     public event Action<int, int> onAmmoChanged;
-
     public void AmmoChanged(int inMag, int stored)
     {
         if (onAmmoChanged != null)

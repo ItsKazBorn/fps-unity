@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController controller;
     public Transform groundCheck;
     public Animator weaponAnimator;
+    private Transform _transform;
 
     [Header("Move")]
     public float baseSpeed = 12f;
@@ -21,8 +23,11 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 velocity;
     private bool isGrounded = false;
 
-    [SerializeField] private Transform _transform;
-    
+    private void Start()
+    {
+        _transform = GetComponent<Transform>();
+    }
+
     void Update()
     {
         Gravity();
@@ -50,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 moveDir = _transform.right * xInput + _transform.forward * zInput;
 
-        controller.Move( speed * Time.deltaTime * moveDir);
+        controller.Move(moveDir * speed * Time.deltaTime);
         weaponAnimator.SetFloat("Magnitude", moveDir.magnitude);
     }
 

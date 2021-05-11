@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class AmmoHolster
 {
-    public GunType gunType;
+    private GunType gunType;
+    private int maxAmmo;
+    private int magSize;
+    private int storedAmmo;
+    private int currentAmmoInMag;
+    private int reloadAmmount;
 
-    public int maxAmmo;
-    public int magSize;
-    public int storedAmmo;
-    public int currentAmmoInMag;
-    public int reloadAmmount;
+    public GunType GunType => gunType;
+    public int StoredAmmo => storedAmmo;
+    public int CurrentAmmoInMag => currentAmmoInMag;
 
     public void Initialize(GunType newGunType, int newMaxAmmo, int newMagSize)
     {

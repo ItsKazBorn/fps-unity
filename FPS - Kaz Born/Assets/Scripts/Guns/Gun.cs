@@ -8,21 +8,27 @@ using UnityEngine.Serialization;
 public class Gun : Weapon
 {
     [Header("Components")]
-    public Camera fpsCam;
+    [SerializeField] protected Camera fpsCam;
     
     [Header("Shoot")]
-    public float damage = 10f;
-    private float gunRange = 100f;
-    private float impactForce = 300f;
-    public float fireRate = 15;
-    public float nextTimeToFire = 0f;
-    public float maxSpread = 0.1f;
-    protected float currentSpread = 0f;
-    public bool isScoped = false;
+    [SerializeField] protected float damage = 10f;
+    [SerializeField] private float _gunRange = 100f;
+    [SerializeField] private float _impactForce = 300f;
+    [SerializeField] private float _fireRate = 15;
+    [SerializeField] private float _nextTimeToFire = 0f;
+    [SerializeField] protected float maxSpread = 0.1f;
+    [SerializeField] protected float currentSpread = 0f;
+    [SerializeField] protected bool isScoped = false;
+
+    public bool IsScoped
+    {
+        get => isScoped;
+        set => isScoped = value;
+    }
 
     [Header("Visual Effects")]
-    public GameObject impactEffect;
-    public GameObject bulletHole;
+    [SerializeField] private GameObject impactEffect;
+    [SerializeField] private GameObject bulletHole;
 
     protected override void OnEnable()
     {
@@ -40,7 +46,7 @@ public class Gun : Weapon
     public override void Fire()
     {
         base.Fire();
-        nextTimeToFire = Time.time + 1f / fireRate;
+        _nextTimeToFire = Time.time + 1f / _fireRate;
         
         CalculateBullet();
     }
@@ -81,12 +87,12 @@ public class Gun : Weapon
     protected void HitCalculation(Vector3 shootDirection)
     {
         RaycastHit hit;
-        if (Physics.Raycast(fpsCam.transform.position, shootDirection, out hit, gunRange))
+        if (Physics.Raycast(fpsCam.transform.position, shootDirection, out hit, _gunRange))
         {
             DoDamage(hit);
 
             if (hit.rigidbody != null)
-                hit.rigidbody.AddForce(-hit.normal * impactForce);
+                hit.rigidbody.AddForce(-hit.normal * _impactForce);
             
             // Spawn impact effect
             GameObject impactGO = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
@@ -97,14 +103,14 @@ public class Gun : Weapon
 
     protected virtual void DoDamage(RaycastHit hit)
     {
-        Shootable target = hit.transform.GetComponent<Shootable>();
+        Shootable target = hit.collider.gameObject.GetComponent<Shootable>();
         if (target != null)
             target.TakeDamage(damage);
     }
 
     public override bool CanFire()
     {
-        if (Time.time >= nextTimeToFire && !isReloading)
+        if (Time.time >= _nextTimeToFire && !isReloading)
             return true;
         return false;
     }
@@ -114,5 +120,17 @@ public class Gun : Weapon
         if (!isFiring && !isReloading && !isScoped)
             return true;
         return false;
+    }
+
+    public virtual void Scope()
+    {
+        isScoped = true;
+        animator.SetBool("Scoped", true);
+    }
+
+    public virtual void UnScope()
+    {
+        isScoped = false;
+        animator.SetBool("Scoped", false);
     }
 }

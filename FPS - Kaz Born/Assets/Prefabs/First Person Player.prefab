@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3026568077413043709}
   - component: {fileID: 3026568077413043708}
   - component: {fileID: 6312578637174651928}
-  - component: {fileID: 288847146}
   - component: {fileID: 1582692496}
   m_Layer: 10
   m_Name: Weapon Holder
@@ -155,19 +154,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &288847146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3026568077413043706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd84579b54f96e488ee96c43128eef5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectedWeapon: 0
 --- !u!114 &1582692496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,7 +167,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedWeapon: 0
-  ammoText: {fileID: 0}
 --- !u!1 &3026568077727457240
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,6 +574,14 @@ PrefabInstance:
       propertyPath: damage
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5847030540692014205, guid: 20abd6732a1864f4fb81f436b240120e, type: 3}
+      propertyPath: takeAmmoSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e0c70bed5c1a4443083a81de5648c7d5, type: 3}
+    - target: {fileID: 5847030540692014205, guid: 20abd6732a1864f4fb81f436b240120e, type: 3}
+      propertyPath: fireSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
     - target: {fileID: 6497058373061210032, guid: 20abd6732a1864f4fb81f436b240120e, type: 3}
       propertyPath: m_Name
       value: Rifle_MuzzleFlash
@@ -679,6 +672,10 @@ PrefabInstance:
       propertyPath: fpsCam
       value: 
       objectReference: {fileID: 3026568077727457242}
+    - target: {fileID: 4157132164265026781, guid: 1917bb4e8406326499d83bc15681ed28, type: 3}
+      propertyPath: gunType
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1917bb4e8406326499d83bc15681ed28, type: 3}
 --- !u!4 &3338918188454003852 stripped
@@ -701,6 +698,14 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 6312578637174651928}
+    - target: {fileID: 4452007579693565216, guid: 101d46bbd3ca1f14e9d8b58a671ce413, type: 3}
+      propertyPath: gunType
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4452007579693565216, guid: 101d46bbd3ca1f14e9d8b58a671ce413, type: 3}
+      propertyPath: throwForce
+      value: 700
+      objectReference: {fileID: 0}
     - target: {fileID: 7527458069086897392, guid: 101d46bbd3ca1f14e9d8b58a671ce413, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.028
@@ -787,6 +792,18 @@ PrefabInstance:
       propertyPath: damage
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 6671944470368578685, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
+      propertyPath: gunType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6671944470368578685, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
+      propertyPath: takeAmmoSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e0c70bed5c1a4443083a81de5648c7d5, type: 3}
+    - target: {fileID: 6671944470368578685, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
+      propertyPath: fireSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
     - target: {fileID: 6792342926765583098, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -861,6 +878,18 @@ PrefabInstance:
       propertyPath: weaponCamera
       value: 
       objectReference: {fileID: 6593723547156632136}
+    - target: {fileID: 1637395811635212904, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
+      propertyPath: gunType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1637395811635212904, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
+      propertyPath: takeAmmoSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e0c70bed5c1a4443083a81de5648c7d5, type: 3}
+    - target: {fileID: 1637395811635212904, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
+      propertyPath: fireSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
     - target: {fileID: 3171244926388975158, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
       propertyPath: m_Name
       value: Sniper
@@ -1011,6 +1040,18 @@ PrefabInstance:
       propertyPath: takeMagSound
       value: 
       objectReference: {fileID: 8300000, guid: e0c70bed5c1a4443083a81de5648c7d5, type: 3}
+    - target: {fileID: 4115332988654125427, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
+      propertyPath: gunType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4115332988654125427, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
+      propertyPath: takeAmmoSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e0c70bed5c1a4443083a81de5648c7d5, type: 3}
+    - target: {fileID: 4115332988654125427, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
+      propertyPath: fireSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
     - target: {fileID: 7157349278198031895, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
       propertyPath: m_Name
       value: Shotgun

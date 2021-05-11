@@ -4,22 +4,21 @@ using UnityEngine;
 
 public class Sniper : Gun
 {
-    public GameObject scopeOverlay;
-    public GameObject weaponCamera;
-    public float scopedFOV = 15f;
+    [SerializeField] private GameObject scopeOverlay;
+    [SerializeField] private GameObject weaponCamera;
+    [SerializeField] private float scopedFOV = 15f;
     private float normalFOV = 60f;
 
-    private void FixedUpdate()
+    public override void Scope()
     {
-        Scope();
+        base.Scope();
+        StartCoroutine(OnScoped());
     }
 
-    private void Scope()
+    public override void UnScope()
     {
-        if (isScoped)
-            StartCoroutine(OnScoped());
-        else
-            OnUnscoped();
+        base.UnScope();
+        OnUnscoped();
     }
 
     protected override void OnEnable()

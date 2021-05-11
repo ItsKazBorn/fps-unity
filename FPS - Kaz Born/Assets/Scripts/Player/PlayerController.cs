@@ -6,9 +6,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public WeaponHolster weaponHolster;
     private PlayerMovement playerMovement;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,38 +26,17 @@ public class PlayerController : MonoBehaviour
         FireWeapon();
         ScopeGun();
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            OnQPress();
-        }
-
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            OnQRelease();
-        }
+        QInput();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter Trigger");
-        Debug.Log("Other Tag: " + other.gameObject.tag);
         if (other.gameObject.CompareTag("AmmoBox"))
         {
-            Debug.Log("Is AmmoBox");
+            // Put in Events
             AmmoBox ammoBox = other.gameObject.GetComponent<AmmoBox>();
-            weaponHolster.AddStoredAmmoTo(ammoBox.gunType);
-            ammoBox.Deactivate();
+            InputEvents.current.AmmoPickUp(ammoBox.gunType);
         }
-    }
-
-    private void OnQPress()
-    {
-        GameEvents.current.QPressed();
-    }
-
-    private void OnQRelease()
-    {
-        GameEvents.current.QReleased();
     }
 
     void Move()
@@ -77,47 +55,77 @@ public class PlayerController : MonoBehaviour
         playerMovement.Sprint(Input.GetKey(KeyCode.LeftShift));
     }
     
-
+    
     void SwitchWeapons()
     {
         if (Input.GetAxis("Mouse ScrollWheel") != 0f)
-            weaponHolster.ChangeSelectedWeapon(Input.GetAxis("Mouse ScrollWheel"));
+            InputEvents.current.ScrollWheel(Input.GetAxis("Mouse ScrollWheel"));
+        
+        if (Input.GetButtonDown("SwitchWeapon1"))
+            InputEvents.current.WeaponSelectPress(0);
+        
+        if (Input.GetButtonDown("SwitchWeapon2"))
+            InputEvents.current.WeaponSelectPress(1);
+        
+        if (Input.GetButtonDown("SwitchWeapon3"))
+            InputEvents.current.WeaponSelectPress(2);
+        
+        if (Input.GetButtonDown("SwitchWeapon4"))
+            InputEvents.current.WeaponSelectPress(3);
+        
+        if (Input.GetButtonDown("SwitchWeapon5"))
+            InputEvents.current.WeaponSelectPress(4);
+        
+        if (Input.GetButtonDown("SwitchWeapon6"))
+            InputEvents.current.WeaponSelectPress(5);
     }
 
     void ReloadWeapon()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-            weaponHolster.ReloadSelectedWeapon();
+        if (Input.GetButtonDown("Reload"))
+            InputEvents.current.ReloadPressed();
     }
 
     void FireWeapon()
     {
         if (Input.GetButton("Fire1"))
-            weaponHolster.FireSelectedWeapon();
+            InputEvents.current.FirePressed();
+        
         else
-            weaponHolster.StopFiringSelectedWeapon();
+            InputEvents.current.FireReleased();
     }
-
+    
     void ScopeGun()
     {
         if (Input.GetButtonDown("Fire2"))
-        {
-            Gun gun = weaponHolster.GetSelectedWeapon().GetComponent<Gun>();
-            if (gun != null)
-            {
-                gun.isScoped = true;
-                gun.animator.SetBool("Scoped", true);
-            }
-        }
+            InputEvents.current.AimPress();
 
         if (Input.GetButtonUp("Fire2"))
+            InputEvents.current.AimRelease();
+    }
+    
+    // TESTING EVENT SYSTEM
+    private void QInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            Gun gun = weaponHolster.GetSelectedWeapon().GetComponent<Gun>();
-            if (gun != null)
-            {
-                gun.isScoped = false;
-                gun.animator.SetBool("Scoped", false);
-            }
+            OnQPress();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Q))
+        {
+            OnQRelease();
         }
     }
+
+    private void OnQPress()
+    {
+        GameEvents.current.QPressed();
+    }
+
+    private void OnQRelease()
+    {
+        GameEvents.current.QReleased();
+    }
+    // ------------------ END TESTING
 }

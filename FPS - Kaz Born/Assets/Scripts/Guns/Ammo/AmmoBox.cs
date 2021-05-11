@@ -9,26 +9,49 @@ public class AmmoBox : MonoBehaviour
     public float respawnTime = 5f;
 
     private BoxCollider _boxCollider;
-    private List<Transform> children = new List<Transform>();
+    private List<Transform> _children = new List<Transform>();
+    private Transform _transform;
+    
 
     private void Start()
     {
+        _transform = GetComponent<Transform>();
         _boxCollider = GetComponent<BoxCollider>();
-        foreach (Transform child in transform)
+        foreach (Transform child in _transform)
         {
-            children.Add(child);
+            _children.Add(child);
         }
+
+        InputEvents.current.onAmmoPickUp += Deactivate;
+    }
+
+    private void OnDestroy()
+    {
+        InputEvents.current.onAmmoPickUp -= Deactivate;
     }
 
     private void Update()
     {
-        transform.Rotate(0, 45 * Time.deltaTime, 0);
+        _transform.Rotate(0, 45 * Time.deltaTime, 0);
     }
 
+    public void Deactivate(GunType gunType)
+    {
+        if (gunType == this.gunType)
+        {
+            _boxCollider.enabled = false;
+            foreach (Transform child in _children)
+            {
+                child.gameObject.SetActive(false);
+            }
+            StartCoroutine(Activate());
+        }
+    }
+    
     public void Deactivate()
     {
         _boxCollider.enabled = false;
-        foreach (Transform child in children)
+        foreach (Transform child in _children)
         {
             child.gameObject.SetActive(false);
         }
@@ -39,7 +62,7 @@ public class AmmoBox : MonoBehaviour
     {
         yield return new WaitForSeconds(respawnTime);
         _boxCollider.enabled = true;
-        foreach (Transform child in children)
+        foreach (Transform child in _children)
         {
             child.gameObject.SetActive(true);
         }
