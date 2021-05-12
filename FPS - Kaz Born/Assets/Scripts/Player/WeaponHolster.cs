@@ -174,7 +174,20 @@ public class WeaponHolster : MonoBehaviour
     
     void SelectWeapon(int previousWeapon)
     {
-        weapons[previousWeapon].gameObject.SetActive(false);
+        StartCoroutine(ChangeWeapon(previousWeapon));
+        //weapons[previousWeapon].gameObject.SetActive(false);
+        //weapons[selectedWeapon].gameObject.SetActive(true);
+        //UpdateAmmoText();
+    }
+
+    IEnumerator ChangeWeapon(int previousWeapon)
+    {
+        Weapon previous = weapons[previousWeapon];
+        previous.Animator.SetTrigger("Deselect");
+        yield return new WaitForSeconds(.2f);
+        
+        previous.gameObject.SetActive(false);
+
         weapons[selectedWeapon].gameObject.SetActive(true);
         UpdateAmmoText();
     }
