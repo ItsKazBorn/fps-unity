@@ -166,7 +166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b36291b399fef134baa4373cad6f71f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedWeapon: 0
 --- !u!1 &3026568077727457240
 GameObject:
   m_ObjectHideFlags: 0
@@ -193,14 +192,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3026568077727457240}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3864307902756358597}
   - {fileID: 3026568077413043709}
-  m_Father: {fileID: 3026568079150001603}
-  m_RootOrder: 1
+  m_Father: {fileID: 5868697413061555595}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &3026568077727457242
 Camera:
@@ -329,7 +328,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3026568077781765071}
-  - {fileID: 3026568077727457245}
+  - {fileID: 5868697413061555595}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -400,7 +399,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b972b077a27310a4781197b9a6758a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponHolster: {fileID: 1582692496}
 --- !u!1 &6593723547156632136
 GameObject:
   m_ObjectHideFlags: 0
@@ -475,6 +473,53 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &7635685700088306286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5868697413061555595}
+  - component: {fileID: 3691098335387209995}
+  m_Layer: 0
+  m_Name: CameraRecoil
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5868697413061555595
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635685700088306286}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 3026568077727457245}
+  m_Father: {fileID: 3026568079150001603}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3691098335387209995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635685700088306286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f13744e417d22c04cbaeeed598c6f4c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 6
+  returnSpeed: 25
+  recoilRotation: {x: 15, y: 2, z: 2}
 --- !u!1001 &2548496168285991744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -582,6 +627,10 @@ PrefabInstance:
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
+    - target: {fileID: 5847030540692014205, guid: 20abd6732a1864f4fb81f436b240120e, type: 3}
+      propertyPath: recoilAmmount
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6497058373061210032, guid: 20abd6732a1864f4fb81f436b240120e, type: 3}
       propertyPath: m_Name
       value: Rifle_MuzzleFlash
@@ -675,6 +724,10 @@ PrefabInstance:
     - target: {fileID: 4157132164265026781, guid: 1917bb4e8406326499d83bc15681ed28, type: 3}
       propertyPath: gunType
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4157132164265026781, guid: 1917bb4e8406326499d83bc15681ed28, type: 3}
+      propertyPath: recoilAmmount
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1917bb4e8406326499d83bc15681ed28, type: 3}
@@ -804,6 +857,10 @@ PrefabInstance:
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
+    - target: {fileID: 6671944470368578685, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
+      propertyPath: recoilAmmount
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6792342926765583098, guid: 742f82807bf4efa4dbc837dc624e2f0d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -890,6 +947,10 @@ PrefabInstance:
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
+    - target: {fileID: 1637395811635212904, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
+      propertyPath: recoilAmmount
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 3171244926388975158, guid: 53316261e8be56745bc5fe94a1a5e6f9, type: 3}
       propertyPath: m_Name
       value: Sniper
@@ -1052,6 +1113,10 @@ PrefabInstance:
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
+    - target: {fileID: 4115332988654125427, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
+      propertyPath: recoilAmmount
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7157349278198031895, guid: 6525d19fd7f754446a816b63c46a6e03, type: 3}
       propertyPath: m_Name
       value: Shotgun

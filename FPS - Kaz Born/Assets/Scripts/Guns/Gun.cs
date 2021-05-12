@@ -116,24 +116,11 @@ public class Gun : Weapon
         {
             if (!autoFire)
             {
-                Debug.Log("Isn't AutoFire");
                 if (!isFiring)
-                {
-                    Debug.Log("Can Fire");
                     return true;
-                }
-                else
-                {
-                    Debug.Log("Cannot Fire");
-                    return false;
-                }
+                return false;
             }
-            else
-            {
-                Debug.Log("Is AutoFire");
-                Debug.Log("Can Fire");
-                return true;
-            }
+            return true;
         }
         return false;
     }

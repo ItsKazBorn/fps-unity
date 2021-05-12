@@ -48,4 +48,13 @@ public class GameEvents : MonoBehaviour
             onSpreadChanged(spread);
         }
     }
+
+    public event Action onWeaponFire;
+    public void WeaponFire()
+    {
+        if (onWeaponFire != null)
+        {
+            onWeaponFire();
+        }
+    }
 }

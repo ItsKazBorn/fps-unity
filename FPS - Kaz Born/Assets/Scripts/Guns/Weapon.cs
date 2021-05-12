@@ -12,6 +12,7 @@ public class Weapon : MonoBehaviour
     protected bool isReloading = false;
     protected float reloadTime = 1f;
     [SerializeField] protected bool autoFire = true;
+    [SerializeField] private float recoilAmmount = 5f;
 
     [Header("Animation")]
     [SerializeField] protected Animator animator;
@@ -26,7 +27,8 @@ public class Weapon : MonoBehaviour
 
     public GunType GunType => gunType;
     public Animator Animator => animator;
-
+    public float RecoilAmmount => recoilAmmount;
+    
     protected virtual void OnEnable()
     {
         isReloading = false;

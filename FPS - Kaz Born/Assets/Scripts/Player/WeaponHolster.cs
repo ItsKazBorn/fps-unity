@@ -80,6 +80,7 @@ public class WeaponHolster : MonoBehaviour
             weapon.Fire();
             holster.UseAmmo();
             UpdateAmmoText();
+            GameEvents.current.WeaponFire();
         }
     }
 
