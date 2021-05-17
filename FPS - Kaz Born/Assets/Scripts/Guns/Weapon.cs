@@ -10,6 +10,13 @@ public class Weapon : MonoBehaviour
     [SerializeField] private GunType gunType;
 
     protected bool isReloading = false;
+
+    public bool IsReloading
+    {
+        get => isReloading;
+        set => isReloading = value;
+    }
+
     protected float reloadTime = 1f;
     [SerializeField] protected bool autoFire = true;
     [SerializeField] private float recoilAmmount = 5f;

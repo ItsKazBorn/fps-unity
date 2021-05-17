@@ -8,17 +8,17 @@ using UnityEngine.Serialization;
 public class Gun : Weapon
 {
     [Header("Components")]
-    [SerializeField] protected Camera fpsCam;
+    [SerializeField] protected Transform originPoint;
     
     [Header("Shoot")]
     [SerializeField] protected float damage = 10f;
-    [SerializeField] private float _gunRange = 100f;
-    [SerializeField] private float _impactForce = 300f;
-    [SerializeField] private float _fireRate = 15;
-    [SerializeField] private float _nextTimeToFire = 0f;
+    private float _gunRange = 100f;
+    private float _impactForce = 300f;
+    [SerializeField] protected float _fireRate = 15;
+    protected float _nextTimeToFire = 0f;
     [SerializeField] protected float maxSpread = 0.1f;
-    [SerializeField] protected float currentSpread = 0f;
-    [SerializeField] protected bool isScoped = false;
+    protected float currentSpread = 0f;
+    protected bool isScoped = false;
 
     public bool IsScoped
     {
@@ -67,7 +67,7 @@ public class Gun : Weapon
     protected virtual Vector3 CalculateSpread()
     {
         // Get Shoot Direction
-        Vector3 shootDirection = fpsCam.transform.forward;
+        Vector3 shootDirection = originPoint.forward;
         // Get Random Direction
         Vector3 spread = new Vector3(UnityEngine.Random.Range(-1f, 1f),
             UnityEngine.Random.Range(-1f, 1f)).normalized;
@@ -75,7 +75,7 @@ public class Gun : Weapon
         float multiplier = UnityEngine.Random.Range(0f, currentSpread);
         spread *= multiplier;
         // Change shoot direction by spread
-        shootDirection = shootDirection + fpsCam.transform.TransformDirection(
+        shootDirection = shootDirection + originPoint.TransformDirection(
             new Vector3(spread.x,spread.y));
         
         // Make spread larger for next firing
@@ -89,8 +89,9 @@ public class Gun : Weapon
     protected void HitCalculation(Vector3 shootDirection)
     {
         RaycastHit hit;
-        if (Physics.Raycast(fpsCam.transform.position, shootDirection, out hit, _gunRange))
+        if (Physics.Raycast(originPoint.transform.position, shootDirection, out hit, _gunRange))
         {
+            
             DoDamage(hit);
 
             if (hit.rigidbody != null)
@@ -105,9 +106,17 @@ public class Gun : Weapon
 
     protected virtual void DoDamage(RaycastHit hit)
     {
-        Shootable target = hit.collider.gameObject.GetComponent<Shootable>();
-        if (target != null)
-            target.TakeDamage(damage);
+        if (hit.collider.gameObject.CompareTag("Enemy"))
+        {
+            Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
+            enemy.TakeDamage(damage);
+        }
+        else
+        {
+            Shootable target = hit.collider.gameObject.GetComponent<Shootable>();
+            if (target)
+                target.TakeDamage(damage);
+        }
     }
 
     public override bool CanFire()

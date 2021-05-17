@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Sniper : Gun
 {
+    [SerializeField] private Camera fpsCamera;
     [SerializeField] private GameObject scopeOverlay;
     [SerializeField] private GameObject weaponCamera;
     [SerializeField] private float scopedFOV = 15f;
@@ -39,7 +40,7 @@ public class Sniper : Gun
         scopeOverlay.SetActive(true);
         weaponCamera.SetActive(false);
 
-        fpsCam.fieldOfView = scopedFOV;
+        fpsCamera.fieldOfView = scopedFOV;
     }
 
     void OnUnscoped()
@@ -47,6 +48,6 @@ public class Sniper : Gun
         scopeOverlay.SetActive(false);
         weaponCamera.SetActive(true);
 
-        fpsCam.fieldOfView = normalFOV;
+        fpsCamera.fieldOfView = normalFOV;
     }
 }
