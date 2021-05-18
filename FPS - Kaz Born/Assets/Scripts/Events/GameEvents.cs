@@ -16,18 +16,14 @@ public class GameEvents : MonoBehaviour
     public void QPressed()
     {
         if (onQPressed != null)
-        {
             onQPressed();
-        }
     }
     
     public event Action onQReleased;
     public void QReleased()
     {
         if (onQReleased != null)
-        {
             onQReleased();
-        }
     }
 
 
@@ -35,26 +31,41 @@ public class GameEvents : MonoBehaviour
     public void AmmoChanged(int inMag, int stored)
     {
         if (onAmmoChanged != null)
-        {
             onAmmoChanged(inMag, stored);
-        }
     }
 
     public event Action<float> onSpreadChanged;
     public void SpreadChanged(float spread)
     {
         if (onSpreadChanged != null)
-        {
             onSpreadChanged(spread);
-        }
     }
 
     public event Action onWeaponFire;
     public void WeaponFire()
     {
         if (onWeaponFire != null)
-        {
             onWeaponFire();
-        }
+    }
+
+    public event Action onGameOver;
+    public void GameOver()
+    {
+        if (onGameOver != null)
+            onGameOver();
+    }
+
+    public event Action onGameReset;
+    public void GameReset()
+    {
+        if (onGameReset != null)
+            onGameReset();
+    }
+
+    public event Action<float, float> onPlayerHealthChanged;
+    public void PlayerHealthChanged(float currentHealth, float maxHealth)
+    {
+        if (onPlayerHealthChanged != null)
+            onPlayerHealthChanged(currentHealth, maxHealth);
     }
 }

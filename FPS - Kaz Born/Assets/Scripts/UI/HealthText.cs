@@ -3,33 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HealthText : MonoBehaviour
 {
-    private TextMeshProUGUI textMesh;
-    
-    // Start is called before the first frame update
-    void Start()
+    private Slider slider;
+
+    private void Start()
     {
-        textMesh = GetComponent<TextMeshProUGUI>();
-        GameEvents.current.onQPressed += OnQPressed;
-        GameEvents.current.onQReleased += OnQReleased;
+        slider = GetComponent<Slider>();
+        GameEvents.current.onPlayerHealthChanged += SetHealth;
     }
 
     private void OnDestroy()
     {
-        GameEvents.current.onQPressed -= OnQPressed;
-        GameEvents.current.onQReleased -= OnQReleased;
+        GameEvents.current.onPlayerHealthChanged -= SetHealth;
     }
 
-    private void OnQPressed()
+    void SetHealth(float health, float maxHealth)
     {
-        textMesh.text = "Q is Pressed!";
+        slider.maxValue = maxHealth;
+        slider.value = health;
     }
 
-    public void OnQReleased()
-    {
-        textMesh.text = "Q was Released!";
-    }
-    
 }

@@ -3,30 +3,60 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
 
+    private bool isGameOver;
+
+    private void Start()
+    {
+        GameEvents.current.onGameOver += OnGameOver;
+    }
+
+    private void OnDestroy()
+    {
+        GameEvents.current.onGameOver -= OnGameOver;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        Sprint();
-        Jump();
-        Move();
+        if (!isGameOver)
+        {
+            Sprint();
+            Jump();
+            Move();
         
-        SwitchWeapons();
-        ReloadWeapon();
-        FireWeapon();
-        ScopeGun();
+            SwitchWeapons();
+            ReloadWeapon();
+            FireWeapon();
+            ScopeGun();
+        }
+        else
+        {
+            ResetScene();
+        }
+    }
 
-        QInput();
+    private void OnGameOver()
+    {
+        isGameOver = true;
+    }
+
+    void ResetScene()
+    {
+        if (Input.GetButtonDown("Submit"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("AmmoBox"))
         {
-            // Put in Events
             AmmoBox ammoBox = other.gameObject.GetComponent<AmmoBox>();
             InputEvents.current.AmmoPickUp(ammoBox.GunType);
         }
@@ -101,29 +131,4 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonUp("Fire2"))
             InputEvents.current.AimRelease();
     }
-    
-    // TESTING EVENT SYSTEM
-    private void QInput()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            OnQPress();
-        }
-
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            OnQRelease();
-        }
-    }
-
-    private void OnQPress()
-    {
-        GameEvents.current.QPressed();
-    }
-
-    private void OnQRelease()
-    {
-        GameEvents.current.QReleased();
-    }
-    // ------------------ END TESTING
 }

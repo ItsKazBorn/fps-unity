@@ -52,4 +52,20 @@ public class EnemyGun : Gun
         }
         return false;
     }
+
+    protected override void DoDamage(RaycastHit hit)
+    {
+        GameObject hitObj = hit.collider.gameObject;
+        if (hitObj.CompareTag("Player"))
+        {
+            PlayerHealth playerHealth = hitObj.GetComponent<PlayerHealth>();
+            playerHealth.TakeDamage(damage);
+        }
+        else
+        {
+            Shootable target = hitObj.GetComponent<Shootable>();
+            if (target)
+                target.TakeDamage(damage);
+        }
+    }
 }

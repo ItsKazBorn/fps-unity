@@ -25,6 +25,8 @@ public class Enemy : MonoBehaviour
     private Vector3 _lastPlayerPosition;
     private Quaternion _initialRotation;
 
+    private bool isGameOver = false;
+
     private bool _rotateToInitialRotation;
     private bool _isInShootingRange;
     public bool IsInShootingRange
@@ -63,16 +65,31 @@ public class Enemy : MonoBehaviour
         _initialRotation = _transform.rotation;
         _player = GameObject.Find("Player").transform;
         _lastPlayerPosition = _initialPosition;
+        GameEvents.current.onGameOver += OnGameOver;
+    }
+
+    private void OnDestroy()
+    {
+        GameEvents.current.onGameOver -= OnGameOver;
     }
 
     void Update()
     {
         //CheckIfPlayerIsInShootingDistance();
-        IsInShootingRange = InFOV(_transform, _player, maxAngle, shootingRange);
-        _isInSeeRange = InFOV(_transform, _player, maxAngle, seeRange);
-        GetPlayerPosition();
-        ShootPlayer();
-        RotateToInitialRotation();
+        if (!isGameOver)
+        {
+            IsInShootingRange = InFOV(_transform, _player, maxAngle, shootingRange);
+            _isInSeeRange = InFOV(_transform, _player, maxAngle, seeRange);
+            GetPlayerPosition();
+            ShootPlayer();
+            RotateToInitialRotation();
+        }
+    }
+
+    void OnGameOver()
+    {
+        _navMeshAgent.ResetPath();
+        isGameOver = true;
     }
 
     public void TakeDamage(float damage)
@@ -92,7 +109,6 @@ public class Enemy : MonoBehaviour
         if (_isInShootingRange)
         {
             TurnToPlayer();
-            // Fire Weapon
             _gun.Fire();
         } 
         else 
@@ -223,8 +239,6 @@ public class Enemy : MonoBehaviour
         Vector3 direction = (_player.transform.position - transform.position).normalized * shootingRange;
         direction.y *= 0;
         Gizmos.DrawRay(transform.position, direction);
-        
-        
     }
 
 }
