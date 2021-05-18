@@ -12,20 +12,17 @@ public class Enemy : MonoBehaviour
     [Header("Field of View")] 
     [SerializeField] private float maxAngle = 45f;
     [SerializeField] private float maxRadius = 5f;
+    [SerializeField] private Transform _player;
     
     [Header("Gun")]
     [SerializeField] private EnemyGun _gun;
-    
-
-    
     
     private NavMeshAgent _navMeshAgent;
     private Transform _transform;
     
     private Vector3 _initialPosition;
-    private Quaternion _initialRotation;
-    [SerializeField] private Transform _player;
     private Vector3 _lastPlayerPosition;
+    private Quaternion _initialRotation;
 
     private bool _rotateToInitialRotation;
     private bool _isInFOV;
@@ -68,7 +65,7 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         //CheckIfPlayerIsInShootingDistance();
-        IsInFOV = InFOV();
+        IsInFOV = InFOV(_transform, _player, maxAngle, maxRadius);
         GetPlayerPosition();
         ShootPlayer();
         RotateToInitialRotation();
@@ -99,7 +96,9 @@ public class Enemy : MonoBehaviour
             
             // Fire Weapon
             _gun.Fire();
-        }
+        } 
+        else 
+            _gun.StopFiring();
     }
     
     void CheckIfPlayerIsInShootingDistance()
@@ -161,29 +160,29 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    bool InFOV()
+    bool InFOV(Transform checkingObject, Transform target, float maxAngle, float maxRadius)
     {
         Collider[] overlaps = new Collider[10];
-        int count = Physics.OverlapSphereNonAlloc(_transform.position, maxRadius, overlaps);
+        int count = Physics.OverlapSphereNonAlloc(checkingObject.position, maxRadius, overlaps);
 
         for (int i = 0; i < count + 1; i++)
         {
             if (overlaps[i])
             {
-                if (overlaps[i].transform == _player)
+                if (overlaps[i].transform == target)
                 {
-                    Vector3 directionBetween = (_player.position - _transform.position).normalized;
+                    Vector3 directionBetween = (target.position - checkingObject.position).normalized;
                     directionBetween.y *= 0;
 
-                    float angle = Vector3.Angle(_transform.forward, directionBetween);
+                    float angle = Vector3.Angle(checkingObject.forward, directionBetween);
 
                     if (angle <= maxAngle)
                     {
-                        Vector3 direction = (_player.position - _transform.position);
+                        Vector3 direction = (target.position - checkingObject.position);
                         RaycastHit hit;
-                        if (Physics.Raycast(_transform.position, direction, out hit, maxRadius))
+                        if (Physics.Raycast(checkingObject.position, direction, out hit, maxRadius))
                         {
-                            if (hit.transform == _player)
+                            if (hit.transform == target)
                                 return true;
                         }
                     }

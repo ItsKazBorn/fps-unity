@@ -21,12 +21,16 @@ public class EnemyGun : Gun
         }
         else if (!isReloading && currentBurst >= burstAmmount)
             StartCoroutine(ReloadBurst());
-        
+    }
+
+    public void StopFiring()
+    {
+        animator.SetBool("Firing", false);
     }
     
     IEnumerator ReloadBurst()
     {
-        animator.SetBool("Firing", false);
+        StopFiring();
         isReloading = true;
         yield return new WaitForSeconds(reloadBurstTime);
         currentBurst = 0;
