@@ -11,7 +11,8 @@ public class Enemy : MonoBehaviour
 
     [Header("Field of View")] 
     [SerializeField] private float maxAngle = 45f;
-    [SerializeField] private float maxRadius = 5f;
+    [SerializeField] private float shootingRange = 10f;
+    [SerializeField] private float seeRange = 5f;
     [SerializeField] private Transform _player;
     
     [Header("Gun")]
@@ -25,17 +26,17 @@ public class Enemy : MonoBehaviour
     private Quaternion _initialRotation;
 
     private bool _rotateToInitialRotation;
-    private bool _isInFOV;
-    public bool IsInFOV
+    private bool _isInShootingRange;
+    public bool IsInShootingRange
     {
-        get { return _isInFOV; }
+        get { return _isInShootingRange; }
         set
         {
-            if (value == _isInFOV)
+            if (value == _isInShootingRange)
                 return;
 
-            _isInFOV = value;
-            if (!_isInFOV)
+            _isInShootingRange = value;
+            if (!_isInShootingRange)
             {
                 // execute code
                 _rotateToInitialRotation = false;
@@ -44,13 +45,15 @@ public class Enemy : MonoBehaviour
                 StartCoroutine(GoToInitialPosition());
             }
 
-            if (_isInFOV)
+            if (_isInShootingRange)
             {
                 _rotateToInitialRotation = false;
                 StopAllCoroutines(); 
             }
         }
     }
+
+    private bool _isInSeeRange;
 
     void Start()
     {
@@ -65,7 +68,8 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         //CheckIfPlayerIsInShootingDistance();
-        IsInFOV = InFOV(_transform, _player, maxAngle, maxRadius);
+        IsInShootingRange = InFOV(_transform, _player, maxAngle, shootingRange);
+        _isInSeeRange = InFOV(_transform, _player, maxAngle, seeRange);
         GetPlayerPosition();
         ShootPlayer();
         RotateToInitialRotation();
@@ -82,35 +86,38 @@ public class Enemy : MonoBehaviour
     {
         Destroy(gameObject);
     }
-    
-    
+
     void ShootPlayer()
     {
-        if (_isInFOV)
+        if (_isInShootingRange)
         {
-            _rotateToInitialRotation = false;
-            Vector3 targetDirection = (_player.position - _transform.position).normalized;
-            targetDirection.y *= 0;
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            _transform.rotation = Quaternion.RotateTowards(_transform.rotation, targetRotation, 25);
-            
+            TurnToPlayer();
             // Fire Weapon
             _gun.Fire();
         } 
         else 
             _gun.StopFiring();
     }
+
+    void TurnToPlayer()
+    {
+        _rotateToInitialRotation = false;
+        Vector3 targetDirection = (_player.position - _transform.position).normalized;
+        targetDirection.y *= 0;
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        _transform.rotation = Quaternion.RotateTowards(_transform.rotation, targetRotation, 10);
+    }
     
     void CheckIfPlayerIsInShootingDistance()
     {
         float distance = CheckPlayerDistance();
 
-        if (distance <= maxRadius)
+        if (distance <= shootingRange)
         {
-            IsInFOV = true;
+            IsInShootingRange = true;
         }
         else
-            IsInFOV = false;
+            IsInShootingRange = false;
     }
     
     float CheckPlayerDistance()
@@ -120,7 +127,7 @@ public class Enemy : MonoBehaviour
 
     void GetPlayerPosition()
     {
-        if (_isInFOV)
+        if (_isInSeeRange)
         {
             _lastPlayerPosition = _player.transform.position;
         }
@@ -195,25 +202,29 @@ public class Enemy : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, maxRadius);
+        Gizmos.DrawWireSphere(transform.position, shootingRange);
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, seeRange);
 
-        Vector3 fovLine1 = Quaternion.AngleAxis(maxAngle, transform.up) * transform.forward * maxRadius;
-        Vector3 fovLine2 = Quaternion.AngleAxis(-maxAngle, transform.up) * transform.forward * maxRadius;
+        Vector3 fovLine1 = Quaternion.AngleAxis(maxAngle, transform.up) * transform.forward * shootingRange;
+        Vector3 fovLine2 = Quaternion.AngleAxis(-maxAngle, transform.up) * transform.forward * shootingRange;
         
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(transform.position, fovLine1);
         Gizmos.DrawRay(transform.position, fovLine2);
 
-        if (!IsInFOV)
+        Gizmos.color = Color.black;
+        Gizmos.DrawRay(transform.position, transform.forward * shootingRange);
+        
+        if (!IsInShootingRange)
             Gizmos.color = Color.red;
         else
             Gizmos.color = Color.green;
-        Vector3 direction = (_player.transform.position - transform.position).normalized * maxRadius;
+        Vector3 direction = (_player.transform.position - transform.position).normalized * shootingRange;
         direction.y *= 0;
         Gizmos.DrawRay(transform.position, direction);
         
-        Gizmos.color = Color.black;
-        Gizmos.DrawRay(transform.position, transform.forward * maxRadius);
+        
     }
 
 }

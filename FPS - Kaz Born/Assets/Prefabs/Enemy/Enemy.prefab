@@ -84,8 +84,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 100
+  maxAngle: 45
+  shootingRange: 30
+  seeRange: 20
+  _player: {fileID: 0}
   _gun: {fileID: 46268505310390174}
-  shootingDistance: 25
 --- !u!1 &380569867254450026
 GameObject:
   m_ObjectHideFlags: 0
