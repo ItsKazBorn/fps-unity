@@ -48,7 +48,5 @@ public class Shotgun : Gun
                 target.TakeDamage(finalDamage);
             }
         }
-        
-        
     }
 }
