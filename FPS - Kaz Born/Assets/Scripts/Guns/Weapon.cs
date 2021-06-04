@@ -29,6 +29,10 @@ public class Weapon : MonoBehaviour
     [SerializeField] private AudioClip _reloadSound;
     [SerializeField] private AudioClip _takeAmmoSound;
     [SerializeField] private AudioClip _fireSound;
+    [SerializeField] protected float audioIntensity;
+    [SerializeField] protected LayerMask listenerMask;
+    protected Collider[] _listeners;
+    
     
     protected bool isFiring = false;
 
@@ -106,5 +110,17 @@ public class Weapon : MonoBehaviour
     public void AddStoredAmmo()
     {
         _audioSource.PlayOneShot(_takeAmmoSound);
+    }
+
+    protected void EmitSound(float intensity, Vector3 sourcePosition)
+    {
+        float maxDistance = Mathf.Sqrt(audioIntensity / 0.1f);
+        if (Physics.OverlapSphereNonAlloc(sourcePosition, maxDistance, _listeners, listenerMask) > 0)
+        {
+            foreach (var listener in _listeners)
+            {
+                // Tell listener about sound
+            }
+        }
     }
 }

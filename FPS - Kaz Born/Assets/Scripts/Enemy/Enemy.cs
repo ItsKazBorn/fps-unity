@@ -6,78 +6,76 @@ using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
+public enum EnemyState
+ {
+     Waiting, Patrolling, Chasing, Attacking
+ }
+
 public class Enemy : MonoBehaviour
 {
-    [Header("Health")] [SerializeField] private float health = 100f;
+    private NavMeshAgent _navMeshAgent;
+    private Transform _transform;
+    private EnemyState state;
+    
+    [Header("Health")] 
+    [SerializeField] private float health = 100f;
+    private bool isGameOver = false;
 
     [Header("Field of View")] 
     [SerializeField] private float maxAngle = 45f;
     [SerializeField] private float shootingRange = 10f;
     [SerializeField] private float seeRange = 5f;
-    [SerializeField] private Transform _player;
+    [SerializeField] private Transform player;
+    private Collider[] overlaps = new Collider[50];
+    private Vector3 _lastPlayerPosition;
+    private Vector3 _nullPosition;
+    private bool _lockChasing;
     
     [Header("Gun")]
     [SerializeField] private EnemyGun _gun;
 
-    [Header("Patrol Points")] 
-    [SerializeField] private List<PatrolPoint> _patrolPoints;
-    private int _currentPatrolIndex = 0;
-    [SerializeField] private float _maxWaitTime = 6f;
+    [Header("Patrol")]
+    private PatrolPoint[] _patrolPoints;
+    private List<int> _allRouteIndexes;
+    private List<int> _currentRoute = new List<int>();
+    private Vector3 _currentDestination;
+    private bool _patrolling;
+    
     [SerializeField] private float _minWaitTime = 3f;
+    [SerializeField] private float _maxWaitTime = 6f;
     private float _waitTime = 5f;
-    private bool _patrolForward = true;
-    
-    private Collider[] overlaps = new Collider[50];
-    
-    private NavMeshAgent _navMeshAgent;
-    private Transform _transform;
-    
-    private Quaternion _initialRotation;
-    private Vector3 _initialPosition;
-    private Vector3 _lastPlayerPosition;
 
-    private bool isGameOver = false;
-
-    private bool _rotateToInitialRotation;
     private bool _isInShootingRange;
-    public bool IsInShootingRange
+    private bool _isInSeeRange;
+
+    public bool IsInSeeRange
     {
-        get { return _isInShootingRange; }
         set
         {
-            if (value == _isInShootingRange)
+            if (value == _isInSeeRange)
                 return;
 
-            _isInShootingRange = value;
-            if (!_isInShootingRange)
+            _isInSeeRange = value;
+            if (!_isInSeeRange)
             {
-                // execute code
-                _rotateToInitialRotation = false;
-                StopAllCoroutines();
-                StartCoroutine(GoToLastPlayerPosition());
-            }
-
-            if (_isInShootingRange)
-            {
-                //_rotateToInitialRotation = false;
-                _navMeshAgent.ResetPath();
-                StopAllCoroutines(); 
+                Debug.Log("Setting to chase");
+                SetState(EnemyState.Chasing);
             }
         }
     }
 
-    private bool _isInSeeRange;
 
+    // ------------------- SET UP
+    #region SetUp
     void Start()
     {
         _transform = transform;
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _initialPosition = _transform.position;
-        _initialRotation = _transform.rotation;
-        _player = GameObject.Find("Player").transform;
-        _lastPlayerPosition = _initialPosition;
+        _nullPosition = new Vector3(0,0,0);
+        _lastPlayerPosition = _nullPosition;
+        player = GameObject.Find("Player").transform;
         GameEvents.current.onGameOver += OnGameOver;
-        ChangePatrolPoint();
+        StartPatrol();
     }
 
     private void OnDestroy()
@@ -85,16 +83,54 @@ public class Enemy : MonoBehaviour
         GameEvents.current.onGameOver -= OnGameOver;
     }
 
+    private void Awake()
+    {
+        _patrolPoints = FindObjectsOfType<PatrolPoint>();
+        _allRouteIndexes = new List<int>();
+        for (int i = 0; i < _patrolPoints.Length - 1; i++)
+        {
+            _allRouteIndexes.Add(i);
+        }
+        _currentRoute.Clear();
+    }
+
     void Update()
     {
-        //CheckIfPlayerIsInShootingDistance();
         if (!isGameOver)
         {
-            IsInShootingRange = InFOV(_transform, _player, maxAngle, shootingRange);
-            _isInSeeRange = InFOV(_transform, _player, maxAngle, seeRange);
-            GetPlayerPosition();
-            ShootPlayer();
-            //RotateToInitialRotation();
+            switch (state)
+            {
+                case EnemyState.Waiting:
+                    _lockChasing = false;
+                    
+                    break;
+                case EnemyState.Patrolling:
+                    _lockChasing = false;
+                    Patrol();
+                    break;
+                case EnemyState.Chasing:
+                    if (!_lockChasing)
+                    {
+                        StopAllCoroutines();
+                        StartCoroutine(GoToLastPlayerPosition());
+                    }
+                    break;
+                case EnemyState.Attacking:
+                    _lockChasing = false;
+                    Attack();
+                    break;
+            }
+            
+            _isInShootingRange = InFOV(_transform, player, maxAngle, shootingRange);
+            IsInSeeRange = InFOV(_transform, player, maxAngle, seeRange);
+            if (_isInShootingRange)
+            {
+                SetState(EnemyState.Attacking);
+            }
+            if (_isInSeeRange)
+            {
+                GetPlayerPosition();
+            }
         }
     }
 
@@ -103,6 +139,11 @@ public class Enemy : MonoBehaviour
         _navMeshAgent.ResetPath();
         isGameOver = true;
     }
+    
+    #endregion
+    
+    // ------------------- LIFE
+    #region Life
 
     public void TakeDamage(float damage)
     {
@@ -115,90 +156,112 @@ public class Enemy : MonoBehaviour
     {
         Destroy(gameObject);
     }
+    #endregion
+    
+    // ------------------- ATTACK
+    #region Attack
 
+    void Attack()
+    {
+        StopAllCoroutines();
+        if (_navMeshAgent.hasPath)
+        {
+            _navMeshAgent.ResetPath();
+        }
+        ShootPlayer();
+    }
+    
     void ShootPlayer()
     {
         if (_isInShootingRange)
         {
             TurnToPlayer();
             _gun.Fire();
-        } 
-        else 
+        }
+        else
+        {
             _gun.StopFiring();
+        }
     }
 
     void TurnToPlayer()
     {
-        _rotateToInitialRotation = false;
-        Vector3 targetDirection = (_player.position - _transform.position).normalized;
+        Vector3 targetDirection = (player.position - _transform.position).normalized;
         targetDirection.y *= 0;
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         _transform.rotation = Quaternion.RotateTowards(_transform.rotation, targetRotation, 10);
     }
+    #endregion
     
-    float CheckPlayerDistance()
+    // ------------------- PATROL
+    #region Patrol
+    void Patrol()
     {
-        return Vector3.Distance(_player.transform.position, _transform.position);
-    }
-
-    void GetPlayerPosition()
-    {
-        if (_isInSeeRange)
+        if (_patrolling && _navMeshAgent.remainingDistance <= 0.5f)
         {
-            _lastPlayerPosition = _player.transform.position;
+            StartCoroutine(SetDestination());
         }
     }
-    
-    void ChangePatrolPoint()
+
+    void StartPatrol()
     {
-        Debug.Log("Changing Patrol Point");
-        if (_patrolForward)
+        if (_patrolPoints.Length >= 2)
         {
-            _currentPatrolIndex++;
-            if (_currentPatrolIndex >= _patrolPoints.Count)
-                _currentPatrolIndex = 0;
+            SetState(EnemyState.Patrolling);
+            StartCoroutine(SetDestination());
         }
-        else
-        {
-            _currentPatrolIndex--;
-            if (_currentPatrolIndex < 0)
-                _currentPatrolIndex = _patrolPoints.Count - 1;
-        }
-        StartCoroutine(TravelBetweenPoints());
     }
 
-    IEnumerator TravelBetweenPoints()
+    IEnumerator SetDestination()
     {
-        GoTo(_patrolPoints[_currentPatrolIndex].transform.position);
-
-        // Wait for Path to be over
-        yield return new WaitForSeconds(0.5f);
-        while (_navMeshAgent.remainingDistance >= 0.1f)
+        _patrolling = false;
+        // yield return new WaitForSeconds(0.5f);
+        // while (_navMeshAgent.remainingDistance >= 0.1f)
+        // {
+        //     yield return null;
+        // }
+        if (_currentRoute.Count <= 0)
         {
-            yield return null;
-        }
-
-        // If it's initial Point
-        if (_currentPatrolIndex == 0)
-        {
-            // Wait a few seconds
             _waitTime = Random.Range(_minWaitTime, _maxWaitTime);
             yield return new WaitForSeconds(_waitTime);
-            // Randomize patrol direction
-            if (Random.Range(0f, 1f) <= 0.5f)
-            {
-                _patrolForward = !_patrolForward;
-            }
+            SetRoute();
         }
-        ChangePatrolPoint();
+        _navMeshAgent.SetDestination(GetNextDestination());
+        _patrolling = true;
+    }
+    
+    void SetRoute()
+    {
+        List<int> randomRoute = new List<int>(_allRouteIndexes);
+        int routeCount = Random.Range(1, 6);
+        _currentRoute.Clear();
+        for (int i = 0; i < routeCount; i++)
+        {
+            int randomIndex = Random.Range(0, randomRoute.Count);
+            _currentRoute.Add(randomRoute[randomIndex]);
+            randomRoute.RemoveAt(randomIndex);
+        }
     }
 
+    Vector3 GetNextDestination()
+    {
+        var currentDestination = _patrolPoints[_currentRoute[0]].transform.position;
+        _currentRoute.RemoveAt(0);
+        return currentDestination;
+    }
+    
+    #endregion
+   
+    // ------------------- CHASING
+    #region Chasing
     IEnumerator GoToLastPlayerPosition()
     {
-        Debug.Log("Going to Last Player Position");
+        Debug.Log("Started Chasing");
+        _lockChasing = true;
         _navMeshAgent.ResetPath();
-        if (_lastPlayerPosition != _initialPosition)
+        if (_lastPlayerPosition != _nullPosition)
         {
+            Debug.Log("Going to Last Player Pos");
             GoTo(_lastPlayerPosition);
         
             // Wait for path to be over
@@ -209,23 +272,27 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        Debug.Log("Waiting a bit");
         // Wait a few seconds at destination
+        Debug.Log("Waiting at location");
         yield return new WaitForSeconds(5f);
 
-        StartCoroutine(SearchForPlayer());
+        //StartCoroutine(SearchForPlayer());
     }
 
     IEnumerator SearchForPlayer()
     {
-        Debug.Log("Searching for player");
+        // REMAKE
+        
+        
+        
+        
+        /*
         Vector3 direction1 = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
         Vector3 direction2 = new Vector3(-direction1.x, 0f, -direction1.z);
 
         Vector3 position1 = _transform.TransformPoint(direction1);
         Vector3 position2 = _transform.TransformPoint(direction2);
         
-        Debug.Log("Going to Pos 1");
         GoTo(position1);
         // Wait for path to be over
         yield return new WaitForSeconds(0.5f);
@@ -234,10 +301,8 @@ public class Enemy : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("Waiting a bit");
         yield return new WaitForSeconds(1f);
         
-        Debug.Log("Going to Pos 2");
         GoTo(position2);
         // Wait for path to be over
         yield return new WaitForSeconds(0.5f);
@@ -246,14 +311,36 @@ public class Enemy : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("Waiting a bit");
         yield return new WaitForSeconds(1f);
 
-        _lastPlayerPosition = _initialPosition;
-        Debug.Log("Resume normal Path");
-        StartCoroutine(TravelBetweenPoints());
+        */
+        _lastPlayerPosition = _nullPosition;
+        SetState(EnemyState.Patrolling);
+    }
+    
+    #endregion
+    
+    // ------------------- UTILS
+    #region Utils
+
+    void SetState(EnemyState state)
+    {
+        this.state = state;
+    }
+    
+    float CheckPlayerDistance()
+    {
+        return Vector3.Distance(player.transform.position, _transform.position);
     }
 
+    void GetPlayerPosition()
+    {
+        if (_isInSeeRange)
+        {
+            _lastPlayerPosition = player.transform.position;
+        }
+    }
+    
     void GoTo(Vector3 destination)
     {
         if (_navMeshAgent)
@@ -301,63 +388,24 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, seeRange);
 
-        Vector3 fovLine1 = Quaternion.AngleAxis(maxAngle, transform.up) * transform.forward * shootingRange;
-        Vector3 fovLine2 = Quaternion.AngleAxis(-maxAngle, transform.up) * transform.forward * shootingRange;
+        Vector3 fovLine1 = Quaternion.AngleAxis(maxAngle, transform.up) * transform.forward * seeRange;
+        Vector3 fovLine2 = Quaternion.AngleAxis(-maxAngle, transform.up) * transform.forward * seeRange;
         
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(transform.position, fovLine1);
         Gizmos.DrawRay(transform.position, fovLine2);
 
         Gizmos.color = Color.black;
-        Gizmos.DrawRay(transform.position, transform.forward * shootingRange);
+        Gizmos.DrawRay(transform.position, transform.forward * seeRange);
         
-        if (!IsInShootingRange)
+        if (!_isInShootingRange)
             Gizmos.color = Color.red;
         else
             Gizmos.color = Color.green;
-        Vector3 direction = (_player.transform.position - transform.position).normalized * shootingRange;
+        Vector3 direction = (player.transform.position - transform.position).normalized * seeRange;
         direction.y *= 0;
         Gizmos.DrawRay(transform.position, direction);
     }
     
-    IEnumerator GoToInitialPosition()
-    {
-        //_rotateToInitialRotation = false;
-        yield return new WaitForSeconds(0.5f);
-        while (_navMeshAgent.remainingDistance >= 0.1f)
-        {
-            yield return null;
-        }
-        yield return new WaitForSeconds(5f);
-        GoTo(_patrolPoints[_currentPatrolIndex].transform.position);
-        //GoBackToPatrol();
-        /*
-        yield return new WaitForSeconds(0.5f);
-        while (_navMeshAgent.remainingDistance >= 0.1f)
-        {
-            yield return null;
-        }
-
-        _rotateToInitialRotation = true;
-        */
-    }
-
-    
-    void CheckIfPlayerIsInShootingDistance()
-    {
-        float distance = CheckPlayerDistance();
-
-        if (distance <= shootingRange)
-        {
-            IsInShootingRange = true;
-        }
-        else
-            IsInShootingRange = false;
-    }
-    
-    void RotateToInitialRotation()
-    {
-        if (_rotateToInitialRotation)
-            _transform.rotation = Quaternion.RotateTowards(_transform.rotation, _initialRotation, 2);
-    }
+    #endregion
 }

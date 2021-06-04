@@ -68,4 +68,11 @@ public class GameEvents : MonoBehaviour
         if (onPlayerHealthChanged != null)
             onPlayerHealthChanged(currentHealth, maxHealth);
     }
+
+    public event Action onSoundFired;
+    public void SoundFired()
+    {
+        if (onSoundFired != null)
+            onSoundFired();
+    }
 }
