@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SocialPlatforms.GameCenter;
 using Random = UnityEngine.Random;
 
 public enum EnemyState
@@ -34,12 +36,17 @@ public class Enemy : MonoBehaviour
     [Header("Gun")]
     [SerializeField] private EnemyGun _gun;
 
-    [Header("Patrol")]
-    private PatrolPoint[] _patrolPoints;
+    [Header("Patrol")] 
+    [SerializeField] private LayerMask _patrolPointsLayerMask;
+    private List<Collider> _patrolPoints = new List<Collider>();
     private List<int> _allRouteIndexes;
     private List<int> _currentRoute = new List<int>();
+    private List<int> _alertRoute = new List<int>();
+    private List<int> _normalRoute = new List<int>();
     private Vector3 _currentDestination;
     private bool _patrolling;
+    private bool _alerted;
+    
     
     [SerializeField] private float _minWaitTime = 3f;
     [SerializeField] private float _maxWaitTime = 6f;
@@ -85,9 +92,20 @@ public class Enemy : MonoBehaviour
 
     private void Awake()
     {
-        _patrolPoints = FindObjectsOfType<PatrolPoint>();
+         Collider[] colliders = new Collider[30];
+        // _patrolPoints = new Collider[25];
+        
+        
+        
+        int numberOfPoints = Physics.OverlapSphereNonAlloc(Vector3.zero, 100, colliders, _patrolPointsLayerMask);
+
+        foreach (var collider in colliders.Take(numberOfPoints)) 
+        { 
+            _patrolPoints.Add(collider);
+        }
+        
         _allRouteIndexes = new List<int>();
-        for (int i = 0; i < _patrolPoints.Length - 1; i++)
+        for (int i = 0; i < _patrolPoints.Count - 1; i++)
         {
             _allRouteIndexes.Add(i);
         }
@@ -199,34 +217,31 @@ public class Enemy : MonoBehaviour
     {
         if (_patrolling && _navMeshAgent.remainingDistance <= 0.5f)
         {
-            StartCoroutine(SetDestination());
+            StartCoroutine(TraverseRoute(_currentRoute));
         }
     }
 
     void StartPatrol()
     {
-        if (_patrolPoints.Length >= 2)
+        if (_patrolPoints.Count >= 2)
         {
             SetState(EnemyState.Patrolling);
-            StartCoroutine(SetDestination());
+            StartCoroutine(TraverseRoute(_currentRoute));
         }
     }
 
-    IEnumerator SetDestination()
+    IEnumerator TraverseRoute(List<int> route)
     {
         _patrolling = false;
-        // yield return new WaitForSeconds(0.5f);
-        // while (_navMeshAgent.remainingDistance >= 0.1f)
-        // {
-        //     yield return null;
-        // }
-        if (_currentRoute.Count <= 0)
+        
+        if (route.Count <= 0)
         {
             _waitTime = Random.Range(_minWaitTime, _maxWaitTime);
             yield return new WaitForSeconds(_waitTime);
+            Debug.Log("New Route");
             SetRoute();
         }
-        _navMeshAgent.SetDestination(GetNextDestination());
+        _navMeshAgent.SetDestination(GetNextDestination(route));
         _patrolling = true;
     }
     
@@ -243,10 +258,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    Vector3 GetNextDestination()
+    Vector3 GetNextDestination(List<int> route)
     {
-        var currentDestination = _patrolPoints[_currentRoute[0]].transform.position;
-        _currentRoute.RemoveAt(0);
+        var currentDestination = _patrolPoints[route[0]].transform.position;
+        route.RemoveAt(0);
         return currentDestination;
     }
     
@@ -276,44 +291,17 @@ public class Enemy : MonoBehaviour
         Debug.Log("Waiting at location");
         yield return new WaitForSeconds(5f);
 
+        SearchForPlayer();
         //StartCoroutine(SearchForPlayer());
     }
 
-    IEnumerator SearchForPlayer()
+    void SearchForPlayer()
     {
-        // REMAKE
-        
-        
-        
-        
-        /*
-        Vector3 direction1 = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
-        Vector3 direction2 = new Vector3(-direction1.x, 0f, -direction1.z);
+        var nearbyPointsRoute = GetNearbyPatrolPoints(_transform.position, shootingRange, 2);
 
-        Vector3 position1 = _transform.TransformPoint(direction1);
-        Vector3 position2 = _transform.TransformPoint(direction2);
+        Debug.Log("Alert Route");
+        StartCoroutine(TraverseRoute(nearbyPointsRoute));
         
-        GoTo(position1);
-        // Wait for path to be over
-        yield return new WaitForSeconds(0.5f);
-        while (_navMeshAgent.remainingDistance >= 0.1f)
-        {
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1f);
-        
-        GoTo(position2);
-        // Wait for path to be over
-        yield return new WaitForSeconds(0.5f);
-        while (_navMeshAgent.remainingDistance >= 0.1f)
-        {
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1f);
-
-        */
         _lastPlayerPosition = _nullPosition;
         SetState(EnemyState.Patrolling);
     }
@@ -323,6 +311,32 @@ public class Enemy : MonoBehaviour
     // ------------------- UTILS
     #region Utils
 
+    List<int> GetNearbyPatrolPoints(Vector3 center, float radius, int points)
+    {
+        Debug.Log("Started Get Nearby Points");
+        Collider[] colliders = new Collider[points];
+        
+        int numberOfPoints = Physics.OverlapSphereNonAlloc(center, radius, colliders, _patrolPointsLayerMask);
+
+        Debug.Log("Ran Overlap Sphere");
+        Debug.Log("Number of Points: " + numberOfPoints);
+        List<int> nearbyPoints = new List<int>();
+        
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            Debug.Log("Getting Index");
+            Debug.Log("i = " + i);
+            var col = colliders[i];
+            
+            var index = _patrolPoints.IndexOf(col);
+            
+            Debug.Log("Index: " + index);
+            nearbyPoints.Add(index);
+        }
+
+        return nearbyPoints;
+    }
+    
     void SetState(EnemyState state)
     {
         this.state = state;
